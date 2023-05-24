@@ -1,2 +1,2 @@
 ping:
-	ansible all -i 'inventory.ini' -u admin -m ping
+	ansible all --limit yandex -u admin -m ping
