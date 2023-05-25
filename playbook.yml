@@ -1,41 +1,31 @@
 - hosts: yandex
-  vars_files:
-  - passwords.yml
 
   tasks:
 
-    - name: update cache
+    - name: install nginx
       become: yes
-      ansible.builtin.apt:
-        update_cache: yes
-      tags: [ubuntu, primary_packages]
-    
-    - name: install git
+      apt:
+        name: nginx
+        state: latest
+
+    - name: copy nginx config
       become: yes
-      ansible.builtin.apt:
-        name: git
-        state: present
-      tags: primary_packages
-    
-    - name: install Make
+      copy:
+        src: /home/dobro/Desktop/work/ansible_hexlet/nginx/nginx.conf
+        dest: /etc/nginx/
+      notify:
+        - restart nginx
+
+    - name: copy html file
       become: yes
-      ansible.builtin.apt:
-        name: make
-        state: present
-      tags: primary_packages
-    
-    - name: create dobro user
-      become: yes
-      ansible.builtin.user:
-        name: dobro
-        password: "{{ 'dobro_password' | password_hash('sha512') }}"
-        update_password: on_create
-      tags: create_users
-    
-    - name: create arthas user
-      become: yes
-      ansible.builtin.user:
-        name: arthas
-        password: "{{ 'arthas_password' | password_hash('sha512') }}"
-        update_password: on_create
-      tags: create_users
+      copy:
+        src: /home/dobro/Desktop/work/ansible_hexlet/ui/index.html
+        dest: /usr/share/nginx/html/
+
+  handlers:
+  - name: restart nginx
+    ansible.builtin.service:
+      name: nginx
+      state: reloaded
+    become: yes
+  
