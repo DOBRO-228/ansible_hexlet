@@ -1,0 +1,41 @@
+- hosts: yandex
+  vars_files:
+  - passwords.yml
+
+  tasks:
+
+    - name: update cache
+      become: yes
+      ansible.builtin.apt:
+        update_cache: yes
+      tags: [ubuntu, primary_packages]
+    
+    - name: install git
+      become: yes
+      ansible.builtin.apt:
+        name: git
+        state: present
+      tags: primary_packages
+    
+    - name: install Make
+      become: yes
+      ansible.builtin.apt:
+        name: make
+        state: present
+      tags: primary_packages
+    
+    - name: create dobro user
+      become: yes
+      ansible.builtin.user:
+        name: dobro
+        password: "{{ 'dobro_password' | password_hash('sha512') }}"
+        update_password: on_create
+      tags: create_users
+    
+    - name: create arthas user
+      become: yes
+      ansible.builtin.user:
+        name: arthas
+        password: "{{ 'arthas_password' | password_hash('sha512') }}"
+        update_password: on_create
+      tags: create_users
