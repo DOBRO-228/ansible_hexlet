@@ -1,4 +1,6 @@
-- hosts: yandex
+- hosts: digital_ocean
+  vars:
+    local_project_path: /home/dobro/Desktop/work/ansible_hexlet
 
   tasks:
 
@@ -10,21 +12,21 @@
 
     - name: copy nginx config
       become: yes
-      copy:
-        src: /home/dobro/Desktop/work/ansible_hexlet/nginx/nginx.conf
+      template:
+        src: '{{ local_project_path }}/nginx/nginx.conf'
         dest: /etc/nginx/
       notify:
         - restart nginx
 
     - name: copy html file
       become: yes
-      copy:
-        src: /home/dobro/Desktop/work/ansible_hexlet/ui/index.html
+      template:
+        src: '{{ local_project_path }}/ui/index.html'
         dest: /usr/share/nginx/html/
 
   handlers:
   - name: restart nginx
-    ansible.builtin.service:
+    service:
       name: nginx
       state: reloaded
     become: yes
