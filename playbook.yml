@@ -1,4 +1,5 @@
 - hosts: digital_ocean
+  # gather_facts: no
   vars:
     local_project_path: /home/dobro/Desktop/work/ansible_hexlet
 
