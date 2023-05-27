@@ -1,15 +1,22 @@
 - hosts: digital_ocean
-  # gather_facts: no
+  gather_facts: no
   vars:
     local_project_path: /home/dobro/Desktop/work/ansible_hexlet
+    user_names:
+      - jaime
+      - sansa
+      - robert
 
   tasks:
 
-    - name: install nginx
+    - name: install packages
       become: yes
       apt:
-        name: nginx
         state: latest
+        name: 
+          - nginx
+          - git
+      tags: [nginx, git]
 
     - name: copy nginx config
       become: yes
@@ -18,12 +25,39 @@
         dest: /etc/nginx/
       notify:
         - restart nginx
+      tags: [nginx]
 
     - name: copy html file
       become: yes
       template:
         src: '{{ local_project_path }}/ui/index.html'
         dest: /usr/share/nginx/html/
+      tags: [ui]
+
+    - name: add test users
+      become: yes
+      user:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ user_names }}"
+      tags: [users]
+
+    - name: add ssh keys for test users
+      authorized_key:
+        user: '{{ item }}'
+        state: present
+        key: "{{ lookup('file', '{{ local_project_path }}/pub_ssh_keys/{{ item }}.pub') }}"
+      loop: '{{ user_names }}'
+      tags: [ssh]
+
+    - name: copy users git config files
+      become: yes
+      template:
+        src: '{{ local_project_path }}/git_configs/.gitconfig'
+        dest: '/home/{{ item }}/.gitconfig'
+      loop: "{{ user_names }}"
+      tags: [users, git]
+
 
   handlers:
   - name: restart nginx
