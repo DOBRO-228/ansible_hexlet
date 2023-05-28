@@ -1,31 +1,54 @@
 - hosts: digital_ocean
   # gather_facts: no
   vars:
+    nginx_port: 8080
     local_project_path: /home/dobro/Desktop/work/ansible_hexlet
     user_names:
       - jaime
       - sansa
       - robert
+    server_name: 'This is server {{ ansible_hostname | upper }}'
+    datetime: '{{ ansible_date_time["date"] }}'
 
   tasks:
 
-    - name: install git on Ubuntu
+    - name: install packages on Ubuntu
       become: yes
       apt:
-        name: git
         state: present
+        name: 
+          - git
+          - nginx
         update_cache: yes
       when: ansible_distribution == 'Ubuntu'
-      tags: [packages, git]
+      tags: [packages]
 
-    - name: install git on Centos
+    - name: install packages on Centos
       become: yes
       yum:
-        name: git
         state: present
+        name: 
+          - git
+          - nginx
         update_cache: yes
       when: ansible_distribution == 'CentOS'
-      tags: [packages, git]
+      tags: [packages]
+
+    - name: copy nginx config
+      become: yes
+      template:
+        src: '{{ local_project_path }}/nginx/nginx.conf'
+        dest: /etc/nginx/
+      notify:
+        - restart nginx
+      tags: [nginx]
+
+    - name: copy template files
+      become: yes
+      template:
+        src: '{{ local_project_path }}/ui/index.html'
+        dest: /usr/share/nginx/html/
+      tags: [ui]
 
     - name: add test users
       become: yes
@@ -48,5 +71,13 @@
       template:
         src: '{{ local_project_path }}/git_configs/.gitconfig'
         dest: '/home/{{ item }}/.gitconfig'
-      loop: "{{ user_names }}"
+      loop: '{{ user_names }}'
       tags: [users, git]
+
+
+  handlers:
+  - name: restart nginx
+    service:
+      name: nginx
+      state: reloaded
+    become: yes

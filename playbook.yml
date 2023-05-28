@@ -6,6 +6,7 @@
       - jaime
       - sansa
       - robert
+    server_name: 'This is server {{ nameservers["ansible_hostname"] | upper }}!'
 
   tasks:
 
@@ -29,7 +30,7 @@
     - name: copy html file
       become: yes
       template:
-        src: '{{ local_project_path }}/ui/index.html'
+        src: '{{ local_project_path }}/templates/index.html.j2'
         dest: /usr/share/nginx/html/
       tags: [ui]
 
