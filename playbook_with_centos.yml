@@ -1,5 +1,5 @@
 - hosts: digital_ocean
-  gather_facts: no
+  # gather_facts: no
   vars:
     local_project_path: /home/dobro/Desktop/work/ansible_hexlet
     user_names:
@@ -9,29 +9,23 @@
 
   tasks:
 
-    - name: install packages
+    - name: install git on Ubuntu
       become: yes
       apt:
         name: git
         state: present
-        update_cache: yes 
-      tags: [git]
+        update_cache: yes
+      when: ansible_distribution == 'Ubuntu'
+      tags: [packages, git]
 
-    - name: copy nginx config
+    - name: install git on Centos
       become: yes
-      template:
-        src: '{{ local_project_path }}/nginx/nginx.conf'
-        dest: /etc/nginx/
-      notify:
-        - restart nginx
-      tags: [nginx]
-
-    - name: copy html file
-      become: yes
-      template:
-        src: '{{ local_project_path }}/ui/index.html'
-        dest: /usr/share/nginx/html/
-      tags: [ui]
+      yum:
+        name: git
+        state: present
+        update_cache: yes
+      when: ansible_distribution == 'CentOS'
+      tags: [packages, git]
 
     - name: add test users
       become: yes
@@ -56,12 +50,3 @@
         dest: '/home/{{ item }}/.gitconfig'
       loop: "{{ user_names }}"
       tags: [users, git]
-
-
-  handlers:
-  - name: restart nginx
-    service:
-      name: nginx
-      state: reloaded
-    become: yes
-  
