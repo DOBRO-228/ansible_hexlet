@@ -1,19 +1,20 @@
-- hosts: digital_ocean
-  gather_facts: no
+- hosts: ubuntu_main
+  # gather_facts: no
   vars:
+    nginx_port: 80
     local_project_path: /home/dobro/Desktop/work/ansible_hexlet
-    user_names:
-      - jaime
-      - sansa
-      - robert
-    server_name: 'This is server {{ nameservers["ansible_hostname"] | upper }}!'
+    server_name: 'This is server {{ ansible_hostname | upper }}'
+    datetime: '{{ ansible_date_time["date"] }}'
 
   tasks:
 
     - name: install packages
       become: yes
       apt:
-        name: git
+        name: 
+          - git
+          - nginx
+          - cowsay
         state: present
         update_cache: yes 
       tags: [git]
@@ -26,38 +27,17 @@
       notify:
         - restart nginx
       tags: [nginx]
+    
+    - name: register cowsay
+      shell: cowsay 'This is server {{ server_name }}!'
+      register: cowsay_result
 
     - name: copy html file
       become: yes
       template:
-        src: '{{ local_project_path }}/templates/index.html.j2'
+        src: '{{ local_project_path }}/ui/index.html'
         dest: /usr/share/nginx/html/
       tags: [ui]
-
-    - name: add test users
-      become: yes
-      user:
-        name: "{{ item }}"
-        state: present
-      loop: "{{ user_names }}"
-      tags: [users]
-
-    - name: add ssh keys for test users
-      authorized_key:
-        user: '{{ item }}'
-        state: present
-        key: "{{ lookup('file', '{{ local_project_path }}/pub_ssh_keys/{{ item }}.pub') }}"
-      loop: '{{ user_names }}'
-      tags: [users, ssh]
-
-    - name: copy users git config files
-      become: yes
-      template:
-        src: '{{ local_project_path }}/git_configs/.gitconfig'
-        dest: '/home/{{ item }}/.gitconfig'
-      loop: "{{ user_names }}"
-      tags: [users, git]
-
 
   handlers:
   - name: restart nginx
