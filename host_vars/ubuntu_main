@@ -1,0 +1,8 @@
+local_project_path: /home/dobro/Desktop/work/ansible_hexlet
+user_names:
+  - jaime
+  - sansa
+  - robert
+nginx_port: 80
+server_name: 'This is server {{ ansible_hostname | upper }}'
+datetime: '{{ ansible_date_time["date"] }}'

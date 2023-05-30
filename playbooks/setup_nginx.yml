@@ -1,0 +1,26 @@
+- hosts: ubuntu_main
+
+  tasks:
+
+    - name: copy nginx config
+      become: yes
+      template:
+        src: '{{ local_project_path }}/nginx/nginx.conf'
+        dest: /etc/nginx/
+      notify:
+        - restart nginx
+      tags: [nginx]
+
+    - name: copy template files
+      become: yes
+      template:
+        src: '{{ local_project_path }}/ui/index.html'
+        dest: /usr/share/nginx/html/
+      tags: [ui]
+
+  handlers:
+  - name: restart nginx
+    service:
+      name: nginx
+      state: reloaded
+    become: yes

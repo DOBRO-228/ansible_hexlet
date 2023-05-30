@@ -1,0 +1,6 @@
+- hosts: ubuntu_main
+
+- import_playbook: playbooks/install_packages.yml
+- import_playbook: playbooks/cowsay.yml
+- import_playbook: playbooks/create_users.yml
+- import_playbook: playbooks/setup_nginx.yml

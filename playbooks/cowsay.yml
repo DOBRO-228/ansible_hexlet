@@ -1,0 +1,10 @@
+- hosts: ubuntu_main
+  gather_facts: no
+
+  tasks:
+
+    - name: register cowsay
+      shell: cowsay 'This is server {{ server_name }}!'
+      register: cowsay_result
+
+
