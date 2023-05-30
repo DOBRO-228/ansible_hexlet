@@ -1,6 +1,22 @@
 - hosts: ubuntu_main
+  tasks:
 
-- import_playbook: playbooks/install_packages.yml
-- import_playbook: playbooks/cowsay.yml
-- import_playbook: playbooks/create_users.yml
-- import_playbook: playbooks/setup_nginx.yml
+    - name: Install packages
+      ansible.builtin.import_tasks: playbooks/install_packages.yml
+
+    - name: add test users
+      become: yes
+      user:
+        name: '{{ item }}'
+        state: present
+      loop: '{{ user_names }}'
+      tags: [users]
+
+    - name: ensure ssh-key is present
+      become: yes
+      authorized_key:
+        user: '{{ item }}'
+        state: present
+        key: "{{ lookup('file', '{{ local_project_path }}/pub_ssh_keys/{{ item }}.pub') }}"
+      loop: '{{ user_names }}'
+      tags: [users, ssh]

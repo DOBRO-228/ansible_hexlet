@@ -1,16 +1,11 @@
-- hosts: ubuntu_main
-  gather_facts: no
-
-  tasks:
-
-    - name: install packages
-      become: yes
-      apt:
-        name: 
-          - git
-          - nginx
-          - cowsay
-        state: present
-        update_cache: yes 
-      tags: packages
+- name: install packages
+  become: yes
+  apt:
+    name: 
+      - git
+      - nginx
+      - cowsay
+    state: present
+    update_cache: yes 
+  tags: packages
 
