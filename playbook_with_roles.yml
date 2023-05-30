@@ -1,0 +1,28 @@
+- hosts: ubuntu_main
+  # gather_facts: no
+
+  roles:
+    - role: geerlingguy.postgresql
+    - role: geerlingguy.git
+    - role: geerlingguy.redis
+    - role: robertdebock.python_pip
+      become: yes
+
+  tasks:
+
+    - name: add test users
+      become: yes
+      user:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ user_names }}"
+      tags: [users]
+    
+    - name: copy users git config files
+      become: yes
+      template:
+        src: '{{ local_project_path }}/git_configs/.gitconfig'
+        dest: '/home/{{ item }}/.gitconfig'
+      loop: '{{ user_names }}'
+      tags: [users, git]
+

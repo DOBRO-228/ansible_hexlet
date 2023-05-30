@@ -1,0 +1,5 @@
+roles:
+  - role: geerlingguy.postgresql
+  - role: geerlingguy.git
+  - role: geerlingguy.redis
+  - role: robertdebock.python_pip
